@@ -91,6 +91,7 @@ class CookiesManager
      * @return string
      */
     //https://github.com/cakephp/cakephp/blob/master/src/Http/Cookie/Cookie.php#L159
+    //https://github.com/spiral/framework/blob/master/src/Cookies/src/Cookie.php#L254
     public static function toHeader($name, array $properties)
     {
         $result = rawurlencode($name) . '=' . rawurlencode($properties['value']);
