@@ -27,6 +27,10 @@ use Traversable;
  */
 // TODO : faire passer la classe en final et virer les protriétés protected.
 // TODO : enlever le caractére "immuable" de cette collection car ca ne fonctionnera pas dans notre cas (on veut utiliser cette collection via un attribut de la request elle doit donc être modifiable sous forme de singleton et donc pas etre immuable)
+
+// TODO : implémenter les méthodes : isNotEmpty(); isEmpty();
+
+// TODO : virer l'utilisation du "clone()" !!!
 class CookieCollection implements IteratorAggregate, Countable
 {
     public const ATTRIBUTE = '__cookieCollection__';
@@ -109,7 +113,15 @@ class CookieCollection implements IteratorAggregate, Countable
      * @param \Chiron\Cookies\Cookie $cookie Cookie instance to add.
      * @return static
      */
-    public function add(Cookie $cookie)
+    public function add(Cookie $cookie): self
+    {
+        $this->cookies[$cookie->getId()] = $cookie;
+
+        return $this;
+    }
+
+    // TODO : méthode à virer !!!!
+    public function add_SAVE(Cookie $cookie)
     {
         $new = clone $this;
         $new->cookies[$cookie->getId()] = $cookie;

@@ -1,0 +1,6 @@
+<?php
+
+return [
+    'encrypt' => true,
+    'excluded' => ['PHPSESSID', 'csrf-token']
+];

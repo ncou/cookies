@@ -11,6 +11,11 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+use Chiron\Cookies\Config\CookiesConfig;
+
+use Chiron\Cookies\CookieCollection;
+use Chiron\Encrypter\Encrypter;
+
 // TODO : il faudra utiliser la clés qui est stockée dans APP_KEY et surtout utiliser la fonction hex2bin pour décoder cette chaine de caractére et l'utiliser comme une clés de bytes. Il faudra donc vérifier que la clés de byte fait bien 32 bytes une fois décodée via hex2bin et surtout pour utiliser hex2bin il faut vérifier que la chaine est bien de type hexa et que la longueur est un multiple de 2 (cad "even") car sinon on aura un warning dans la méthode hex2bin et elle retournera false au lien de décoder la chaine.
 //=> https://stackoverflow.com/questions/41194159/how-to-catch-hex2bin-warning
 
@@ -21,29 +26,26 @@ use Psr\Http\Server\RequestHandlerInterface;
 final class EncryptCookiesMiddleware implements MiddlewareInterface
 {
     /**
-     * The encryption key.
-     *
-     * @var string
-     */
-    private $password;
-
-    /**
      * The names of the cookies which bypass encryption.
      *
      * @var array
      */
     private $bypassed;
 
+    private $encrypter;
+
     /**
      * Set up a encrypt cookie middleware with the given password key and an array of bypassed cookie names.
      *
-     * @param string $password
-     * @param array  $bypassed
+     * @param CookiesConfig $config
+     * @param Encrypter $encrypter
      */
-    public function __construct(string $password, array $bypassed = [])
+    // TODO : passer le EncrypterConfig en paramétre du constructeur de la classe Encrypter pour initialiser la clés ????
+    // TODO : passer plutot en paramétre de cette classe un CookiesConfig qui se charge d'initialiser les cookies à bypasser + dire si l'encryption est active + eventuellement le domain !!!!
+    public function __construct(CookiesConfig $config, Encrypter $encrypter)
     {
-        $this->password = $password;
-        $this->bypassed = $bypassed;
+        $this->bypassed = $config->getExcluded();
+        $this->encrypter = $encrypter;
     }
 
     /**
@@ -73,6 +75,7 @@ final class EncryptCookiesMiddleware implements MiddlewareInterface
     {
         $cookies = $request->getCookieParams();
 
+        // TODO : réutiliser le tableau des cookies au lieu d'initialiser un tableau $decrypted = [] !!!!!!!!!!!
         $decrypted = [];
         foreach ($cookies as $name => $value) {
             $decrypted[$name] = in_array($name, $this->bypassed) ? $value : $this->decrypt($value);
@@ -90,8 +93,25 @@ final class EncryptCookiesMiddleware implements MiddlewareInterface
      */
     private function withEncryptedCookies(ResponseInterface $response): ResponseInterface
     {
-        //$cookiesManager = new CookiesManager();
-        //$cookies = CookiesManager::parseHeaders($response->getHeader('Set-Cookie'));
+        if (! $response->hasHeader('Set-Cookie')) {
+            return $response;
+        }
+
+        $cookies = CookieCollection::createFromHeader($response->getHeader('Set-Cookie'));
+        $header = [];
+        foreach ($cookies as $cookie) {
+            if (! in_array($cookie->getName(), $this->bypassed)) {
+                $value = $this->encrypt($cookie->getValue());
+                $cookie = $cookie->withValue($value);
+            }
+            $header[] = $cookie->toHeaderValue();
+        }
+
+        return $response->withHeader('Set-Cookie', $header);
+
+
+
+/*
 
         $cookies = CookiesManager::parseSetCookieHeader($response->getHeader('Set-Cookie'));
 
@@ -110,6 +130,9 @@ final class EncryptCookiesMiddleware implements MiddlewareInterface
         }
 
         return $response;
+
+        */
+
     }
 
     /**
@@ -121,7 +144,7 @@ final class EncryptCookiesMiddleware implements MiddlewareInterface
      */
     private function encrypt(string $value): string
     {
-        return CryptEngine::encrypt($value, $this->password);
+        return $this->encrypter->encrypt($value);
     }
 
     /**
@@ -132,10 +155,14 @@ final class EncryptCookiesMiddleware implements MiddlewareInterface
      *
      * @return string
      */
+    // TODO : il faudrait surement gérer le cas ou la valeur est un tableau :
+    //https://github.com/spiral/framework/blob/master/src/Cookies/src/Middleware/CookiesMiddleware.php#L136
+    //https://github.com/cakephp/cakephp/blob/42353085a8911745090024e2a4f43215d38d6af0/src/Utility/CookieCryptTrait.php#L100
+    //
     private function decrypt(string $value): string
     {
         try {
-            return CryptEngine::decrypt($value, $this->password);
+            return $this->encrypter->decrypt($value);
         } catch (\Throwable $t) {
             // @TODO : Add a silent log message if there is an error in the cookie decrypt function.
             return '';

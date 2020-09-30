@@ -39,9 +39,12 @@ final class CollectCookiesMiddleware implements MiddlewareInterface
             $request->getUri()->getScheme() === 'https'
         );*/
 
+
+        //https://github.com/spiral/framework/blob/master/src/Cookies/src/Middleware/CookiesMiddleware.php#L54
+
         // Collection used to aggregates user cookies.
         $cookies = new CookieCollection();
-
+        // The following controller could populate the cookies collection.
         $response = $handler->handle($request->withAttribute(CookieCollection::ATTRIBUTE, $cookies));
 
         return $this->collectCookies($response, $cookies);
@@ -58,7 +61,7 @@ final class CollectCookiesMiddleware implements MiddlewareInterface
     private function collectCookies(ResponseInterface $response, CookieCollection $cookies): ResponseInterface
     {
         // TODO : voir si on garde ce if !!!! éventuellement vérifier ce qui se passe si on a un Set-Cookie avec une valeur égale à un tableau vide, il ne faudrait pas faire un emit de ce header !!! Eventuellement remonter ce if dans la méthode process() et remplacer le test du empty par un test sur le count === 0.
-        if (empty($cookies)) {
+        if (count($cookies) === 0) {
             return $response;
         }
 
