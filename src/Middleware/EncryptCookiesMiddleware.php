@@ -23,6 +23,8 @@ use Chiron\Encrypter\Encrypter;
 
 //https://github.com/cakephp/cakephp/blob/42353085a8911745090024e2a4f43215d38d6af0/src/Utility/CookieCryptTrait.php#L53
 
+//https://github.com/narrowspark/framework/blob/81f39d7371715ee20aa888a8934c36c536e3d69e/src/Viserio/Component/Cookie/Middleware/EncryptedCookiesMiddleware.php
+
 final class EncryptCookiesMiddleware implements MiddlewareInterface
 {
     /**
@@ -40,12 +42,11 @@ final class EncryptCookiesMiddleware implements MiddlewareInterface
      * @param CookiesConfig $config
      * @param Encrypter $encrypter
      */
-    // TODO : passer le EncrypterConfig en paramétre du constructeur de la classe Encrypter pour initialiser la clés ????
     // TODO : passer plutot en paramétre de cette classe un CookiesConfig qui se charge d'initialiser les cookies à bypasser + dire si l'encryption est active + eventuellement le domain !!!!
-    public function __construct(CookiesConfig $config, Encrypter $encrypter)
+    public function __construct(Encrypter $encrypter, CookiesConfig $config)
     {
-        $this->bypassed = $config->getExcluded();
         $this->encrypter = $encrypter;
+        $this->bypassed = $config->getExcluded();
     }
 
     /**
@@ -78,6 +79,7 @@ final class EncryptCookiesMiddleware implements MiddlewareInterface
         // TODO : réutiliser le tableau des cookies au lieu d'initialiser un tableau $decrypted = [] !!!!!!!!!!!
         $decrypted = [];
         foreach ($cookies as $name => $value) {
+            // TODO : faire plutot un "continue" si le cookie est dans la liste $bypassed pour simplifier le if. + créer une méthode isBypassed() pour simplifier le code et faire le test du in_array
             $decrypted[$name] = in_array($name, $this->bypassed) ? $value : $this->decrypt($value);
         }
 
@@ -100,10 +102,12 @@ final class EncryptCookiesMiddleware implements MiddlewareInterface
         $cookies = CookieCollection::createFromHeader($response->getHeader('Set-Cookie'));
         $header = [];
         foreach ($cookies as $cookie) {
+            // TODO : faire plutot un "continue" si le cookie est dans la liste $bypassed pour simplifier le if. + créer une méthode isBypassed() pour simplifier le code et faire le test du in_array
             if (! in_array($cookie->getName(), $this->bypassed)) {
                 $value = $this->encrypt($cookie->getValue());
                 $cookie = $cookie->withValue($value);
             }
+
             $header[] = $cookie->toHeaderValue();
         }
 

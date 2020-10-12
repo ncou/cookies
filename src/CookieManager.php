@@ -10,6 +10,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Chiron\Container\SingletonInterface;
 use Chiron\Core\Exception\ScopeException;
 
+//https://github.com/illuminate/cookie/blob/8831c0de69f44a79c5aa63b356990441c5d5b4a7/CookieJar.php
+
 /**
  * Cookies manages provides the ability to write and read cookies from the active request/response scope.
  */
@@ -39,7 +41,7 @@ final class CookieManager implements SingletonInterface
 
     /**
      * @param string $name
-     * @param null   $default
+     * @param mixed   $default
      * @return mixed
      *
      * @throws ScopeException

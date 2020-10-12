@@ -4,8 +4,18 @@ declare(strict_types=1);
 
 namespace Chiron\Cookies;
 
+//https://github.com/narrowspark/framework/blob/81f39d7371715ee20aa888a8934c36c536e3d69e/src/Viserio/Component/Cookie/AbstractCookieCollector.php
+//https://github.com/narrowspark/framework/blob/81f39d7371715ee20aa888a8934c36c536e3d69e/src/Viserio/Component/Cookie/CookieJar.php
+
 //https://github.com/cakephp/cakephp/blob/master/src/Http/Cookie/CookieCollection.php
 //https://github.com/spiral/framework/blob/master/src/Cookies/src/CookieQueue.php
+
+//https://github.com/yiisoft/cookies/blob/master/src/CookieCollection.php
+
+//https://github.com/illuminate/cookie/blob/8831c0de69f44a79c5aa63b356990441c5d5b4a7/CookieJar.php
+
+//https://github.com/php-http/message/blob/master/src/CookieJar.php
+//https://github.com/venta/framework/blob/master/src/Http/src/CookieJar.php
 
 use ArrayIterator;
 use Countable;

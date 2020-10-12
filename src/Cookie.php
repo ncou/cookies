@@ -10,6 +10,31 @@ use DateTimeInterface;
 use DateTimeZone;
 use InvalidArgumentException;
 
+//https://github.com/narrowspark/framework/blob/81f39d7371715ee20aa888a8934c36c536e3d69e/src/Viserio/Component/Cookie/SetCookie.php
+//https://github.com/narrowspark/framework/blob/81f39d7371715ee20aa888a8934c36c536e3d69e/src/Viserio/Component/Cookie/AbstractCookie.php
+//https://github.com/narrowspark/framework/blob/81f39d7371715ee20aa888a8934c36c536e3d69e/src/Viserio/Component/Cookie/Cookie.php
+//https://github.com/narrowspark/framework/blob/81f39d7371715ee20aa888a8934c36c536e3d69e/src/Viserio/Component/Cookie/RequestCookies.php
+//https://github.com/narrowspark/framework/blob/81f39d7371715ee20aa888a8934c36c536e3d69e/src/Viserio/Component/Cookie/ResponseCookies.php
+
+//https://github.com/php-http/message/blob/master/src/Cookie.php
+//https://github.com/brick/http/blob/master/src/Cookie.php
+
+// TODO : utiliser une validation du nom du cookie, ainsi qu'une validation du contenu du cookie => https://github.com/narrowspark/framework/blob/81f39d7371715ee20aa888a8934c36c536e3d69e/src/Viserio/Component/Cookie/Traits/CookieValidatorTrait.php
+
+//https://github.com/yiisoft/cookies/blob/master/src/Cookie.php
+
+// TODO : il faut ajouter la gestion du max-age.
+
+// TODO : attention normalement si on choisi samesite = None il faut vérifier que secure est bien à true !!!! => https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Set-Cookie/SameSite
+// https://github.com/spiral/cookies/blob/c35f0640992226fe444756664aa784ae4792de1c/src/Cookie/SameSite.php#L45
+//
+
+//https://github.com/cakephp/cakephp/blob/master/src/Http/Cookie/Cookie.php
+
+//https://github.com/symfony/http-foundation/blob/master/Cookie.php
+//https://github.com/spiral/cookies/blob/master/src/Cookie.php
+//https://github.com/paragonie/PHP-Cookie/blob/master/src/Cookie.php
+
 /**
  * Cookie object to build a cookie and turn it into a header value
  *
@@ -39,6 +64,45 @@ use InvalidArgumentException;
 // TODO : passer la classe en final et virer les champs protected !!!!
 class Cookie
 {
+    /**
+     * Expires attribute format.
+     *
+     * @var string
+     */
+    public const EXPIRES_FORMAT = 'D, d-M-Y H:i:s T';
+
+    /**
+     * SameSite attribute value: Lax
+     *
+     * @var string
+     */
+    public const SAMESITE_LAX = 'Lax';
+
+    /**
+     * SameSite attribute value: Strict
+     *
+     * @var string
+     */
+    public const SAMESITE_STRICT = 'Strict';
+
+    /**
+     * SameSite attribute value: None
+     *
+     * @var string
+     */
+    public const SAMESITE_NONE = 'None';
+
+    /**
+     * Valid values for "SameSite" attribute.
+     *
+     * @var string[]
+     */
+    public const SAMESITE_VALUES = [
+        self::SAMESITE_LAX,
+        self::SAMESITE_STRICT,
+        self::SAMESITE_NONE,
+    ];
+
     /**
      * Cookie name
      *
@@ -178,8 +242,8 @@ class Cookie
      * - `domain`: Domain name string. Defaults to `''`.
      * - `httponly`: Boolean. Defaults to `false`.
      * - `secure`: Boolean. Defaults to `false`.
-     * - `samesite`: Can be one of `CookieInterface::SAMESITE_LAX`, `CookieInterface::SAMESITE_STRICT`,
-     *    `CookieInterface::SAMESITE_NONE` or `null`. Defaults to `null`.
+     * - `samesite`: Can be one of `self::SAMESITE_LAX`, `self::SAMESITE_STRICT`,
+     *    `self::SAMESITE_NONE` or `null`. Defaults to `null`.
      *
      * @param array $options Default options.
      * @return void
@@ -300,7 +364,7 @@ class Cookie
         if (isset($data['samesite'])) {
             // Ignore invalid value when parsing headers
             // https://tools.ietf.org/html/draft-west-first-party-cookies-07#section-4.1
-            if (!in_array($data['samesite'], CookieInterface::SAMESITE_VALUES, true)) {
+            if (!in_array($data['samesite'], self::SAMESITE_VALUES, true)) {
                 unset($data['samesite']);
             }
         }
@@ -646,9 +710,9 @@ class Cookie
      */
     protected static function validateSameSiteValue(string $sameSite)
     {
-        if (!in_array($sameSite, CookieInterface::SAMESITE_VALUES, true)) {
+        if (!in_array($sameSite, self::SAMESITE_VALUES, true)) {
             throw new InvalidArgumentException(
-                'Samesite value must be either of: ' . implode(', ', CookieInterface::SAMESITE_VALUES)
+                'Samesite value must be either of: ' . implode(', ', self::SAMESITE_VALUES)
             );
         }
     }

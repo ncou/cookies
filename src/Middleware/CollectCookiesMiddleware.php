@@ -20,6 +20,8 @@ use Chiron\Cookies\CookieCollection;
 
 //https://github.com/cakephp/cakephp/blob/42353085a8911745090024e2a4f43215d38d6af0/src/Utility/CookieCryptTrait.php#L53
 
+//https://github.com/narrowspark/framework/blob/81f39d7371715ee20aa888a8934c36c536e3d69e/src/Viserio/Component/Cookie/Middleware/AddQueuedCookiesToResponseMiddleware.php
+
 final class CollectCookiesMiddleware implements MiddlewareInterface
 {
     /**
@@ -32,6 +34,7 @@ final class CollectCookiesMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        // TODO : préinitialiser le path / domain / secure value via les infos de la request !!!!!
         // Collection used to aggregates user cookies.
         /*
         $collection = new CookieCollection(
@@ -59,6 +62,17 @@ final class CollectCookiesMiddleware implements MiddlewareInterface
      * @return ResponseInterface
     */
     private function collectCookies(ResponseInterface $response, CookieCollection $cookies): ResponseInterface
+    {
+        foreach ($cookies as $cookie) {
+            $header = $cookie->toHeaderValue();
+            $response = $response->withAddedHeader('Set-Cookie', $header);
+        }
+
+        return $response;
+    }
+
+    // TODO : code à virer !!!!
+    private function collectCookies_OLD(ResponseInterface $response, CookieCollection $cookies): ResponseInterface
     {
         // TODO : voir si on garde ce if !!!! éventuellement vérifier ce qui se passe si on a un Set-Cookie avec une valeur égale à un tableau vide, il ne faudrait pas faire un emit de ce header !!! Eventuellement remonter ce if dans la méthode process() et remplacer le test du empty par un test sur le count === 0.
         if (count($cookies) === 0) {
