@@ -28,6 +28,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Traversable;
+use Chiron\Http\Message\Cookie;
 
 /**
  * Cookie Collection
@@ -40,6 +41,8 @@ use Traversable;
 
 // TODO : implémenter les méthodes : isNotEmpty(); isEmpty();
 
+// TODO : ajouter une méthode pour utiliser des "options" par défault pour créer le cookie ????
+
 // TODO : virer l'utilisation du "clone()" !!!
 class CookieCollection implements IteratorAggregate, Countable
 {
@@ -48,14 +51,14 @@ class CookieCollection implements IteratorAggregate, Countable
     /**
      * Cookie objects
      *
-     * @var \Chiron\Cookies\Cookie[]
+     * @var Cookie[]
      */
     protected $cookies = [];
 
     /**
      * Constructor
      *
-     * @param \Chiron\Cookies\Cookie[] $cookies Array of cookie objects
+     * @param Cookie[] $cookies Array of cookie objects
      */
     public function __construct(array $cookies = [])
     {
@@ -97,7 +100,7 @@ class CookieCollection implements IteratorAggregate, Countable
         $data = $request->getCookieParams();
         $cookies = [];
         foreach ($data as $name => $value) {
-            $cookies[] = new Cookie($name, $value);
+            $cookies[] = new Cookie($name, $value); // TODO : utiliser la méthode Cookie::create() ????
         }
 
         return new static($cookies);
@@ -120,7 +123,7 @@ class CookieCollection implements IteratorAggregate, Countable
      * cookies if a cookie collection is used for cookies across multiple
      * domains. This can impact how get(), has() and remove() behave.
      *
-     * @param \Chiron\Cookies\Cookie $cookie Cookie instance to add.
+     * @param Cookie $cookie Cookie instance to add.
      * @return static
      */
     public function add(Cookie $cookie): self
@@ -143,7 +146,7 @@ class CookieCollection implements IteratorAggregate, Countable
      * Get the first cookie by name.
      *
      * @param string $name The name of the cookie.
-     * @return \Chiron\Cookies\Cookie
+     * @return Cookie
      * @throws \InvalidArgumentException If cookie not found.
      */
     public function get(string $name): Cookie
@@ -205,7 +208,7 @@ class CookieCollection implements IteratorAggregate, Countable
     /**
      * Checks if only valid cookie objects are in the array
      *
-     * @param \Chiron\Cookies\Cookie[] $cookies Array of cookie objects
+     * @param Cookie[] $cookies Array of cookie objects
      * @return void
      * @throws \InvalidArgumentException
      */
@@ -228,7 +231,7 @@ class CookieCollection implements IteratorAggregate, Countable
     /**
      * Gets the iterator
      *
-     * @return \Chiron\Cookies\Cookie[]
+     * @return Cookie[]
      */
     public function getIterator(): Traversable
     {

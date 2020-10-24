@@ -9,6 +9,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Chiron\Container\SingletonInterface;
 use Chiron\Core\Exception\ScopeException;
+use Chiron\Http\Message\Cookie;
 
 //https://github.com/illuminate/cookie/blob/8831c0de69f44a79c5aa63b356990441c5d5b4a7/CookieJar.php
 

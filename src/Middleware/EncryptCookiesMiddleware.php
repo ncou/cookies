@@ -43,6 +43,7 @@ final class EncryptCookiesMiddleware implements MiddlewareInterface
      * @param Encrypter $encrypter
      */
     // TODO : passer plutot en paramétre de cette classe un CookiesConfig qui se charge d'initialiser les cookies à bypasser + dire si l'encryption est active + eventuellement le domain !!!!
+    // TODO : il faudra surement lui passer un loggerInterface en paramétre pour ensuite logger les potentielles erreurs lors du crypt/decrypt !!!
     public function __construct(Encrypter $encrypter, CookiesConfig $config)
     {
         $this->encrypter = $encrypter;

@@ -16,6 +16,7 @@
     },
     "require": {
         "php": "^7.2",
+        "chiron/http-message-util": "^1.0",
         "chiron/encrypter": "^1.0"
     },
     "require-dev": {
