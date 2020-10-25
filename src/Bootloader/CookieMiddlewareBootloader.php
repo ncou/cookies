@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Chiron\Cookies\Bootloader;
 
-use Chiron\Bootload\AbstractBootloader;
+use Chiron\Core\Container\Bootloader\AbstractBootloader;
 use Chiron\Http\MiddlewareQueue;
 use Chiron\Cookies\Middleware\CollectCookiesMiddleware;
 use Chiron\Cookies\Middleware\EncryptCookiesMiddleware;

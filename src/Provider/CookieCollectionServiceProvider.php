@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Chiron\Cookies\Provider;
 
-use Chiron\Bootload\ServiceProvider\ServiceProviderInterface;
+use Chiron\Core\Container\Provider\ServiceProviderInterface;
 use Chiron\Container\BindingInterface;
 use Chiron\Cookies\CookieCollection;
 use Psr\Http\Message\ServerRequestInterface;
