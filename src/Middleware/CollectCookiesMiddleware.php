@@ -50,7 +50,6 @@ final class CollectCookiesMiddleware implements MiddlewareInterface
         // The following controller could populate the cookies collection.
         $response = $handler->handle($request->withAttribute(CookieCollection::ATTRIBUTE, $cookies));
 
-
         return $this->collectCookies($response, $cookies);
     }
 
