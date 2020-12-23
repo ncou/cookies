@@ -14,7 +14,12 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Chiron\Cookies\Config\CookiesConfig;
 
 use Chiron\Cookies\CookieCollection;
-use Chiron\Encrypter\Encrypter;
+use Chiron\Security\Encrypter;
+use Chiron\Security\Exception\DecryptException;
+
+// TODO : il faut signer et unsign la valeur du cookie !!!
+
+//https://github.com/laravel/framework/blob/8.x/src/Illuminate/Cookie/Middleware/EncryptCookies.php
 
 // TODO : il faudra utiliser la clés qui est stockée dans APP_KEY et surtout utiliser la fonction hex2bin pour décoder cette chaine de caractére et l'utiliser comme une clés de bytes. Il faudra donc vérifier que la clés de byte fait bien 32 bytes une fois décodée via hex2bin et surtout pour utiliser hex2bin il faut vérifier que la chaine est bien de type hexa et que la longueur est un multiple de 2 (cad "even") car sinon on aura un warning dans la méthode hex2bin et elle retournera false au lien de décoder la chaine.
 //=> https://stackoverflow.com/questions/41194159/how-to-catch-hex2bin-warning
@@ -44,10 +49,11 @@ final class EncryptCookiesMiddleware implements MiddlewareInterface
      */
     // TODO : passer plutot en paramétre de cette classe un CookiesConfig qui se charge d'initialiser les cookies à bypasser + dire si l'encryption est active + eventuellement le domain !!!!
     // TODO : il faudra surement lui passer un loggerInterface en paramétre pour ensuite logger les potentielles erreurs lors du crypt/decrypt !!!
-    public function __construct(Encrypter $encrypter, CookiesConfig $config)
+    // TODO : renommer le paramétre $config en $cookiesConfig
+    public function __construct(CookiesConfig $config, Encrypter $encrypter)
     {
+        $this->bypassed = $config->getExcluded(); // TODO : stocker plutot directement le cookiesConfig en variable globale de classe et faire l'appel à la méthode getExcluded plus tard dans le code ???
         $this->encrypter = $encrypter;
-        $this->bypassed = $config->getExcluded();
     }
 
     /**
@@ -61,6 +67,7 @@ final class EncryptCookiesMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $request = $this->withDecryptedCookies($request);
+
         $response = $handler->handle($request);
 
         return $this->withEncryptedCookies($response);
@@ -94,6 +101,7 @@ final class EncryptCookiesMiddleware implements MiddlewareInterface
      *
      * @return ResponseInterface Updated response with encoded cookies.
      */
+    // TODO : améliorer le code !!!!
     private function withEncryptedCookies(ResponseInterface $response): ResponseInterface
     {
         if (! $response->hasHeader('Set-Cookie')) {
@@ -112,6 +120,7 @@ final class EncryptCookiesMiddleware implements MiddlewareInterface
             $header[] = $cookie->toHeaderValue();
         }
 
+        // Overwrite the cookie header with a new array [with encrypted values].
         return $response->withHeader('Set-Cookie', $header);
 
 
@@ -163,14 +172,14 @@ final class EncryptCookiesMiddleware implements MiddlewareInterface
     // TODO : il faudrait surement gérer le cas ou la valeur est un tableau :
     //https://github.com/spiral/framework/blob/master/src/Cookies/src/Middleware/CookiesMiddleware.php#L136
     //https://github.com/cakephp/cakephp/blob/42353085a8911745090024e2a4f43215d38d6af0/src/Utility/CookieCryptTrait.php#L100
-    //
+    // TODO : éventuellement retourner 'null' au lieu d'une string vide, ca devrait aussi marcher pour créer un cookie vide !!!!
     private function decrypt(string $value): string
     {
         try {
             return $this->encrypter->decrypt($value);
-        } catch (\Throwable $t) {
-            // @TODO : Add a silent log message if there is an error in the cookie decrypt function.
-            return '';
+        } catch (DecryptException $t) {
+            // Don't blow up if decryption fail.
+            return ''; // TODO : retourner null
         }
     }
 }

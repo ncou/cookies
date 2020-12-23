@@ -10,6 +10,14 @@ use DateTimeInterface;
 use DateTimeZone;
 use InvalidArgumentException;
 
+// NORMALIZE DOMAIN :
+//https://github.com/delight-im/PHP-Cookie/blob/master/src/Cookie.php#L540
+//https://github.com/guzzle/guzzle/blob/master/src/Cookie/SetCookie.php#L339
+
+//https://github.com/php-http/message/blob/master/src/Cookie.php
+
+// TODO : ajouter dans la documentation que dans le cookie name, les caractéres espaces, points et signe plus sont remplacés par des underscore par PHP (notamment lors de la récupération dans $_COOKIE) => PHP replaces dots and spaces in cookie names with underscores.
+
 //https://github.com/slimphp/Slim-Psr7/blob/master/src/Cookies.php
 
 //https://github.com/dflydev/dflydev-fig-cookies/blob/master/src/Dflydev/FigCookies/StringUtil.php
@@ -201,6 +209,7 @@ class Cookie
      * @param bool|null $httpOnly HTTP Only
      * @param string|null $sameSite Samesite
      */
+    // TODO : le paramétre $value doit être de type ?string
     public function __construct(
         string $name,
         $value = '',
@@ -272,6 +281,8 @@ class Cookie
      * @return static
      * @see \Cake\Cookie\Cookie::setDefaults()
      */
+    // TODO : il faudrait pas mettre une valeur par défault à '' pour le paramétre $value ????
+    // TODO : le paramétre $value doit être de type ?string
     public static function create(string $name, $value, array $options = [])
     {
         $options += static::$defaults;
@@ -397,6 +408,7 @@ class Cookie
         }
         $headerValue = [];
         /** @psalm-suppress PossiblyInvalidArgument */
+        // TODO : il faudrait soit faire un rawurlencode sur $this->name, soit à minima modifier certains caractéres : https://github.com/symfony/symfony/blob/5.x/src/Symfony/Component/HttpFoundation/Cookie.php#L267
         $headerValue[] = sprintf('%s=%s', $this->name, rawurlencode($value));
 
         if ($this->expiresAt) {
@@ -455,18 +467,36 @@ class Cookie
      * @param string $name Name of the cookie
      * @return void
      * @throws \InvalidArgumentException
-     * @link https://tools.ietf.org/html/rfc2616#section-2.2 Rules for naming cookies.
+     *
+     * @see https://tools.ietf.org/html/rfc6265#section-4.1.1 Rules for 'set-cookie' header.
+     * @see https://tools.ietf.org/html/rfc2616#section-2.2 Rules for naming header.
      */
+    // TODO : utiliser cette méthode pour valider le nom : https://github.com/zendframework/zend-http/blob/master/src/Header/HeaderValue.php#L69
+    // TODO : autre exemple : https://github.com/delight-im/PHP-Cookie/blob/master/src/Cookie.php#L482
+    // TODO : autre exemple : https://github.com/guzzle/guzzle/blob/master/src/Cookie/SetCookie.php#L385
+    // TODO : déplacer ce controle dans une classe Header::isValidName() ????
+    // https://github.com/ventoviro/windwalker-packages/blob/13def63ace1c49befde2200c614c6543f7002ea4/packages/http/src/Helper/HeaderHelper.php#L63
+    // TODO : utiliser une regex pour valider le nom du cookie => https://github.com/yiisoft/cookies/blob/master/src/Cookie.php#L35     /   https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Set-Cookie
     protected function validateName(string $name): void
     {
-        if (preg_match("/[=,;\t\r\n\013\014]/", $name)) {
-            throw new InvalidArgumentException(
-                sprintf('The cookie name `%s` contains invalid characters.', $name)
-            );
+        // Header name should be at least one character long.
+        // Invalid characters are: control characters (0-31;127), space, tab and the following: ()<>@,;:\"/?={}
+        if (! preg_match('/^[a-zA-Z0-9\'`#$%&*+.^_|~!-]+$/', $name)) { // TODO : déplacer ce contrôle dans la classe Header::class sous le nom isValidToken ???
+            throw new InvalidArgumentException('The cookie name cannot be empty or contains invalid characters.');
+        }
+    }
+
+    protected function validateName_OLD(string $name): void
+    {
+        // Header name should be at least one character long.
+        if ($name === '') {
+            throw new InvalidArgumentException('The cookie name cannot be empty.');
         }
 
-        if (empty($name)) {
-            throw new InvalidArgumentException('The cookie name cannot be empty.');
+        // Invalid characters are: control characters (0-31;127), space, tab and the following: ()<>@,;:\"/?={}
+        if (preg_match('/[\x00-\x20\x22\x28-\x29\x2c\x2f\x3a-\x40\x5c\x7b\x7d\x7f]/', $name)) {
+            //throw new InvalidArgumentException(sprintf('The cookie name `%s` contains invalid characters.', $name));
+            throw new InvalidArgumentException(sprintf('The cookie name `%s` contains invalid characters.', $name));
         }
     }
 
@@ -507,6 +537,7 @@ class Cookie
     /**
      * @inheritDoc
      */
+    // TODO : permettre de passer null à la valeur du cookie. cad faire un typehint du paramétre à '?string'
     public function withValue($value)
     {
         $new = clone $this;
@@ -884,5 +915,13 @@ class Cookie
         }
 
         return $array;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->toHeaderValue();
     }
 }

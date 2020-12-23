@@ -29,6 +29,14 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Traversable;
 
+// TODO :créer une méthode make() dans cette classe !!! cf classe CookieJar de Laravel
+
+// TODO : il manque une méthode pour "expirer" le cookie c'est à dire lui mettre une ancienne date pour qu'il soit supprimé par le browser lors de l'envoi dans la response.
+
+// TODO : renommer la classe en CookieQueue::class et ajouter une méthode "queue" et "unqueue" et "getQueuedCookies", comme c'est fait dans Laravel !!! cf     https://github.com/laravel/framework/blob/ff5e8c55100fd416ec0c0ff23db583a61ce7a3fb/src/Illuminate/Cookie/CookieJar.php
+
+// TODO : créer une facade pour cette classe qui serait nommée "Cookie" ca permettrait de chainer les appels de maniére logique Cookie::queue(Cookie::make('name', 'value'));
+
 /**
  * Cookie Collection
  *
@@ -43,6 +51,7 @@ use Traversable;
 // TODO : ajouter une méthode pour utiliser des "options" par défault pour créer le cookie ????
 
 // TODO : virer l'utilisation du "clone()" !!!
+// TODO : utiliser la classe CookieFactory::class ici pour créer le cookie correctement initialisé dans la méthode add($name, $value) !!!!
 class CookieCollection implements IteratorAggregate, Countable
 {
     public const ATTRIBUTE = '__cookieCollection__';
@@ -74,13 +83,14 @@ class CookieCollection implements IteratorAggregate, Countable
      * @param array $defaults The defaults attributes.
      * @return static
      */
+    // TODO : remonter la méthode createFromHeaderString directement dans la classe CookieCollection, voir même directement dans la classe CookieFactory !!!!
     public static function createFromHeader(array $header, array $defaults = [])
     {
         $cookies = [];
         foreach ($header as $value) {
             try {
                 $cookies[] = Cookie::createFromHeaderString($value, $defaults);
-            } catch (Exception $e) {
+            } catch (Exception $e) { // TODO : il faut plutot faire le try/catch sur Throwable
                 // Don't blow up on invalid cookies
             }
         }
@@ -94,6 +104,7 @@ class CookieCollection implements IteratorAggregate, Countable
      * @param \Psr\Http\Message\ServerRequestInterface $request The request to extract cookie data from
      * @return static
      */
+    // TODO : méthode à virer ???? Elle ne semble pas utilisée !!! Eventuellement la déplacer dans le cookieFactory
     public static function createFromServerRequest(ServerRequestInterface $request)
     {
         $data = $request->getCookieParams();

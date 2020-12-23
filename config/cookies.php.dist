@@ -1,6 +1,86 @@
 <?php
 
+// TODO : exemple de fichier de config : https://github.com/laravel/laravel/blob/8.x/config/session.php#L158
+//https://docs.djangoproject.com/fr/3.1/ref/settings/#csrf-cookie-domain
+
 return [
-    'encrypt' => true,
-    'excluded' => ['PHPSESSID', 'csrf-token']
+    /*
+    |--------------------------------------------------------------------------
+    | Enable cookies encryption
+    |--------------------------------------------------------------------------
+    | Default: false (encryption is disabled)
+    |
+    | This will enable the encryption of all the Cookies values. The secret
+    | application key will be used for the 'aes-256' algo to crypt the data.
+    */
+    'encrypt' => false,
+    /*
+    |--------------------------------------------------------------------------
+    | Cookies names excluded for encryption
+    |--------------------------------------------------------------------------
+    | Default: []
+    |
+    | The cookie name to bypass the encryption. ex: ['PHPSESSID', 'csrf-token']
+    |
+    | By default all the cookies are encrypted if the encryption is enabled.
+    | This list prevent the listed cookies to be encrypted.
+    */
+    'excluded' => [],
+    /*
+    |--------------------------------------------------------------------------
+    | Cookie Path
+    |--------------------------------------------------------------------------
+    |
+    | The cookie path determines the path for which the cookie will be
+    | regarded as available. Typically, this will be the root path of your
+    | application but you are free to change this when necessary.
+    |
+    */
+    //'path' => '/',
+    /*
+    |--------------------------------------------------------------------------
+    | Session Cookie Domain
+    |--------------------------------------------------------------------------
+    |
+    | Here you may change the domain of the cookie used to identify a session
+    | in your application. This will determine which domains the cookie is
+    | available to in your application. A sensible default has been set.
+    |
+    */
+    'domain' => env('COOKIE_DOMAIN', null),
+    /*
+    |--------------------------------------------------------------------------
+    | HTTPS Only Cookies
+    |--------------------------------------------------------------------------
+    |
+    | By setting this option to true, cookies will only be sent back to the
+    | server if the browser has a HTTPS connection. This will keep the cookie
+    | from being sent to you if it can not be done securely.
+    |
+    */
+    'secure' => false,
+    /*
+    |--------------------------------------------------------------------------
+    | HTTP Access Only
+    |--------------------------------------------------------------------------
+    |
+    | Setting this value to true will prevent JavaScript from accessing the
+    | value of the cookie and the cookie will only be accessible through
+    | the HTTP protocol. You are free to modify this option if needed.
+    |
+    */
+    'http_only' => true,
+    /*
+    |--------------------------------------------------------------------------
+    | Same-Site Cookies
+    |--------------------------------------------------------------------------
+    |
+    | This option determines how your cookies behave when cross-site requests
+    | take place, and can be used to mitigate CSRF attacks. By default, we
+    | will set this value to "lax" since this is a secure default value.
+    |
+    | Supported: "lax", "strict", "none", null
+    |
+    */
+    'same_site' => 'lax',
 ];

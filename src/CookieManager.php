@@ -12,8 +12,14 @@ use Chiron\Core\Exception\ScopeException;
 
 //https://github.com/illuminate/cookie/blob/8831c0de69f44a79c5aa63b356990441c5d5b4a7/CookieJar.php
 
+// TODO : il faudra surement ajouter une méthode "forever()" et "forget()" pour supprimer un cookie ou pour le conserver longtemps !!!!
+
+// TODO : ajouter la méthode addToResponse ???? https://github.com/yiisoft/cookies/blob/master/src/Cookie.php#L442
+
+// TODO : déplacer ici la méthode de CookieCollection::createFromServerRequest() pour avoir des objets Cookies quand on va faire un getAll() ????
+
 /**
- * Cookies manages provides the ability to write and read cookies from the active request/response scope.
+ * Cookie manager provides the ability to write and read cookies from the active request/response scope.
  */
 final class CookieManager implements SingletonInterface
 {

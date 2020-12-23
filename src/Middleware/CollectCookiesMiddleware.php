@@ -37,7 +37,7 @@ final class CollectCookiesMiddleware implements MiddlewareInterface
         // TODO : préinitialiser le path / domain / secure value via les infos de la request !!!!!
         // Collection used to aggregates user cookies.
         /*
-        $collection = new CookieCollection(
+        $collection = new CookieQueue(
             $this->config->resolveDomain($request->getUri()),
             $request->getUri()->getScheme() === 'https'
         );*/
@@ -48,9 +48,9 @@ final class CollectCookiesMiddleware implements MiddlewareInterface
         // Collection used to aggregates user cookies.
         $cookies = new CookieCollection();
         // The following controller could populate the cookies collection.
-        $response = $handler->handle($request->withAttribute(CookieCollection::ATTRIBUTE, $cookies));
+        $response = $handler->handle($request->withAttribute(CookieCollection::ATTRIBUTE, $cookies)); // TODO : utiliser plutot une constante ATTRIBUTE directement dans cette classe de middleware ????
 
-        return $this->collectCookies($response, $cookies);
+        return $this->collectCookies($response, $cookies); // TODO : renommer la méthode en aggregateCookies() ou injectCookies()
     }
 
     /**
@@ -61,11 +61,13 @@ final class CollectCookiesMiddleware implements MiddlewareInterface
      *
      * @return ResponseInterface
     */
+    // TODO : renommer la méthode en aggregateCookies() ou injectCookies() ou addCookiesToResponse()
     private function collectCookies(ResponseInterface $response, CookieCollection $cookies): ResponseInterface
     {
         foreach ($cookies as $cookie) {
             $header = $cookie->toHeaderValue();
-            $response = $response->withAddedHeader('Set-Cookie', $header);
+            // Add the collected cookies to the response.
+            $response = $response->withAddedHeader('Set-Cookie', $header); // TODO : utiliser un cast (string) cookie pour récupérer le header et simplifier le code.
         }
 
         return $response;

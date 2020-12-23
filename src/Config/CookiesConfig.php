@@ -14,9 +14,10 @@ final class CookiesConfig extends AbstractInjectableConfig
 
     protected function getConfigSchema(): Schema
     {
+        // TODO : limiter les valeurs de "samesite" à "Lax" et "Strict". avec la valeur par défaut à Lax !!!! Eventuellement 'None' mais ce n'est pas recommandé
         return Expect::structure([
             'encrypt' => Expect::bool()->default(true),
-            'excluded' => Expect::list()->default(['PHPSESSID', 'csrf-token']),
+            'excluded' => Expect::list(),
         ]);
     }
 
