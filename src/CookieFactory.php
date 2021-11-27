@@ -49,7 +49,7 @@ final class CookieFactory
     // TODO : le paramétre $value doit être de type ?string
     // TODO utiliser le "cookie_name" / "cookie_age" dans le csrfConfig le "cookie_path" via httpConfig et utiliser dans le cookieConfig : "cookie_domain" / "cookie_httponly" / "samesite" / "secure"
     // TODO : permettre de passer null à la $value du cookie. cad faire un typehint du paramétre à '?string' qui sera emplacé par une chaine vide
-    public function create(string $name, $value = '', $expires): Cookie
+    public function create(string $name, $value, $expires): Cookie
     {
         // TODO : utiliser les 2 fichiers de config pour initialiser les valeurs par défaut du cookie => path/domain/samesite/httponly/secure
         $options = [
